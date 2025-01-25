@@ -24,6 +24,12 @@ public class App2 {
         Department newDepartment = new Department(null, "Music");
         departmentDao.insert(newDepartment);;
         System.out.println("Inserted! New id = " + newDepartment.getId());
+
+        System.out.println("\n=== Test 3: department inset =====");
+        Department dp2 = departmentDao.findById(1);
+        dp2.setName("Food");
+        departmentDao.update(dp2);
+        System.out.println("Update completed");
   }
 
 }
