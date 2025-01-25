@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import Model.Dao.DepartmentDao;
@@ -47,9 +48,7 @@ public class DepartmentDaoJDBC implements DepartmentDao{
             st.setInt(1, id);
             rs = st.executeQuery();
             if(rs.next()){
-                Department dp = new Department();
-                dp.setId(rs.getInt("Id"));
-                dp.setName(rs.getString("Name"));
+                Department dp = instantiateDepartment(rs);
                 return dp;
             }
             return null;
@@ -62,10 +61,37 @@ public class DepartmentDaoJDBC implements DepartmentDao{
         }
     }
 
+    private Department instantiateDepartment(ResultSet rs) throws SQLException {
+        Department dp = new Department();
+        dp.setId(rs.getInt("Id"));
+        dp.setName(rs.getString("Name"));
+        return dp;
+    }
+
     @Override
     public List<Department> findAll() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findAll'");
+        PreparedStatement st = null;
+        ResultSet rs = null;
+        try {
+            st = conn.prepareStatement("SELECT * \n" + //
+                                "FROM department\n" + //
+                                "WHERE Id IS NOT NULL\n" + //
+                                "ORDER BY Name");
+            rs = st.executeQuery();
+            List<Department> list = new ArrayList<>();
+            while (rs.next()) {
+                Department dp = new Department();
+                dp = instantiateDepartment(rs);
+                list.add(dp);
+            }
+            return list;
+        } catch (SQLException e) {
+            throw new DbException(e.getMessage());
+        }
+        finally{
+            DB.closeStatement(st);
+            DB.closeResultSet(rs);
+        }
     }
 
 }
